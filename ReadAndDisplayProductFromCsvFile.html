@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+<div ng-app="myApp" ng-controller="myCtrl"> 
+
+<h1>{{myWelcome}}</h1>
+
+
+<button ng-click="clickfun('items.csv')">
+Item list
+</button>
+
+<button ng-click="clickfun('product-list.csv')">
+Product list
+</button>
+
+<div id="divID">
+  <table>
+    <tr ng-repeat="x in data">
+      <td ng-repeat="y in x">{{ y }}</td>
+    </tr>
+  </table>
+</div>
+
+</div>
+
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope, $http) {
+  $http.get("product-list.csv")
+  .then(function(response) {
+  
+      $scope.myWelcome = "After click on Item and Product button you can get data from CSV";	  
+	  var allTextLines = response.data.split(/\r\n|\n/);	  
+	  processData(allTextLines);
+  });
+  
+  
+	 $scope.clickfun = function(filename){
+		$http.get(filename)
+  .then(function(response) {
+  
+      $scope.myWelcome = response.data;	  
+	  var allTextLines = response.data.split(/\r\n|\n/);	  
+	  processData(allTextLines);
+  });
+	 }
+  
+  function processData (allTextLines) {
+	
+	 var headers = allTextLines[0].split(',');
+        var lines = [];
+
+        for ( var i = 0; i < allTextLines.length; i++) {
+            // split content based on comma
+            var data = allTextLines[i].split(',');
+            if (data.length == headers.length) {
+                var tarr = [];
+                for ( var j = 0; j < headers.length; j++) {
+                    tarr.push(data[j]);
+                }
+                lines.push(tarr);
+            }
+        }
+        $scope.data = lines;
+  
+  } 
+  
+});
+</script>
+
+</body>
+</html>
